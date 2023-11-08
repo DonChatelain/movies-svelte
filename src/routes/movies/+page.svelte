@@ -26,6 +26,7 @@
 	export let onYearChange = async (year: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
 		query.set('year', year);
+		currentOffset = 0;
 		query.set('offset', '0');
 		goto(`?${query.toString()}`);
 	};
@@ -33,6 +34,7 @@
 	export let submitSearch = (search: string) => {
 		let query = new URLSearchParams($page.url.searchParams.toString());
 		query.set('search', search);
+		currentOffset = 0;
 		query.set('offset', '0');
 		goto(`?${query.toString()}`);
 	};
@@ -245,6 +247,7 @@
 		font-size: larger;
 		text-shadow: 1px 2px #000000cf;
 		font-family: sans-serif;
+		margin: 0;
 	}
 
 	.year {
