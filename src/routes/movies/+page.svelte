@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { navigating, page } from '$app/stores';
+	import { formatNumberWithCommas } from '$lib/util/formatting';
 	import type { Movie } from '../../models/movie.model';
 	import type { PageData } from './$types';
 
@@ -109,46 +110,50 @@
 
 <header>
 	<h1>Movie Search</h1>
-	<h2>{data.total} Movies</h2>
+	<h4 style:margin-bottom={'20px'}>{formatNumberWithCommas(data.total)} Movies</h4>
 
-	<select on:change={(e) => onYearChange(e.currentTarget.value)} name="yearSelect">
-		<option value="">All Time</option>
-		{#each selectYears as year, i}
-			<option selected={year.toString() === $page.url.searchParams.get('year')} value={year}
-				>{year}</option
-			>
-		{/each}
-	</select>
-
-	<input
-		bind:value={searchTerm}
-		on:keypress={(e) => e.key === 'Enter' && submitSearch(e.currentTarget.value)}
-		placeholder="Search by Title"
-	/>
-
-	<div class="sorters">
-		<span>Sort by: </span>
-		<select on:change={(e) => onSortColumnChange(e.currentTarget.value)} bind:value={sortColumn}>
-			<option value="title">Title</option>
-			<option value="year">Year</option>
+	<div class="filter-wrapper">
+		<select on:change={(e) => onYearChange(e.currentTarget.value)} name="yearSelect">
+			<option value="">All Time</option>
+			{#each selectYears as year, i}
+				<option selected={year.toString() === $page.url.searchParams.get('year')} value={year}
+					>{year}</option
+				>
+			{/each}
 		</select>
 
-		<select on:change={(e) => onSortDirChange(e.currentTarget.value)} bind:value={sortDir}>
-			<option value="asc">Ascending</option>
-			<option value="desc">Descending</option>
-		</select>
+		<input
+			bind:value={searchTerm}
+			on:keypress={(e) => e.key === 'Enter' && submitSearch(e.currentTarget.value)}
+			placeholder="Search by Title"
+		/>
+
+		<div class="sorters">
+			<span style:font-size="small">Sort by: </span>
+			<select on:change={(e) => onSortColumnChange(e.currentTarget.value)} bind:value={sortColumn}>
+				<option value="title">Title</option>
+				<option value="year">Year</option>
+			</select>
+
+			<select on:change={(e) => onSortDirChange(e.currentTarget.value)} bind:value={sortDir}>
+				<option value="asc">Ascending</option>
+				<option value="desc">Descending</option>
+			</select>
+		</div>
 	</div>
 
 	<div class="genres-input">
 		{#each data.genres as genre}
-			<input
-				type="checkbox"
-				value={genre.name}
-				checked={selectedGenres.indexOf(genre.name) !== -1}
-				id={genre.id}
-				on:change={(e) => handleGenreClick(e.currentTarget.value)}
-			/>
-			<label for={genre.id}>{genre.name}</label>
+			<div>
+				<input
+					type="checkbox"
+					value={genre.name}
+					checked={selectedGenres.indexOf(genre.name) !== -1}
+					id={genre.id}
+					on:change={(e) => handleGenreClick(e.currentTarget.value)}
+				/>
+				<label for={genre.id}>{genre.name}</label>
+			</div>
 		{/each}
 	</div>
 
@@ -200,34 +205,44 @@
 </div>
 
 <style>
-	.hidden {
-		visibility: hidden;
-	}
-
-	.page-controls {
-		position: fixed;
-		left: 0;
-		bottom: 0;
-		width: 100vw;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.page-controls > button {
-		margin: 15px;
-	}
-
 	header {
 		margin: 10px auto;
 		text-align: center;
 	}
-	.movieWrapper {
+
+	.filter-wrapper {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
 		flex-wrap: wrap;
-		margin-top: 40px;
+		width: 80%;
+		margin: 10px auto;
+	}
+
+	.genres-input {
+		height: 100px;
+		width: 80%;
+		margin: 10px auto;
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		grid-gap: 10px;
-		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+		grid-gap: 5px;
+		overflow-y: auto;
+	}
+
+	.genres-input > div {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 3px;
+	}
+
+	.genres-input input {
+		width: 15px;
+		height: 15px;
+	}
+	.genres-input label {
+		font-size: small;
 	}
 
 	.summary-modal {
@@ -238,6 +253,13 @@
 		box-shadow: 2px 2px 10px #0000001f;
 		border-radius: 10px;
 		pointer-events: none;
+	}
+
+	.movieWrapper {
+		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		grid-gap: 10px;
 	}
 
 	.movie {
@@ -296,26 +318,20 @@
 		top: 50px;
 	}
 
-	.skeleton-loader-background {
-		width: 80%;
-		height: 20px;
-		display: block;
-		background: linear-gradient(
-				to right,
-				rgba(255, 255, 255, 0),
-				rgba(255, 255, 255, 0.5) 30%,
-				rgba(255, 255, 255, 0) 60%
-			),
-			lightgray;
-		background-repeat: repeat-y;
-		background-size: 50px 500px;
-		background-position: 0 0;
-		animation: shine 1s infinite;
+	.hidden {
+		visibility: hidden;
 	}
 
-	@keyframes shine {
-		to {
-			background-position: 100% 0;
-		}
+	.page-controls {
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		width: 100vw;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.page-controls > button {
+		margin: 15px;
 	}
 </style>

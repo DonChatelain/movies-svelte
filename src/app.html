@@ -5,6 +5,39 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
+		<style>
+			/* GLOBAL STYLES... For now... */
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			html {
+				background-color: rgb(245, 245, 245);
+			}
+
+			body {
+				font-family: sans-serif;
+				color: rgb(10, 10, 10);
+			}
+
+			button {
+				border-radius: 20px;
+				background-color: rgb(243 46 46 / 80%);
+				color: white;
+				font-weight: bold;
+				border: none;
+				padding: 5px 15px;
+				font-size: large;
+				box-shadow: 1px 5px 15px #00000085;
+				cursor: pointer;
+				transition: background-color 150ms ease-in-out;
+			}
+			button:hover {
+				background-color: rgb(243 46 46 / 100%);
+			}
+		</style>
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
