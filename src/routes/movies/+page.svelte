@@ -6,7 +6,7 @@
 
 	export let data: PageData;
 
-	export const PAGE_LIMIT = 50;
+	export const PAGE_LIMIT = 100;
 
 	export let selectedMovie: Movie | undefined;
 	export let selectedMoviePosition = { x: 0, y: 0 };
@@ -15,6 +15,8 @@
 	export let searchTerm = $page.url.searchParams.get('search') || '';
 	export let sortColumn = $page.url.searchParams.get('sortCol') || 'title';
 	export let sortDir = $page.url.searchParams.get('sortDir') || 'asc';
+
+	export let selectedGenres: string[] = JSON.parse($page.url.searchParams.get('genres') || '[]');
 
 	// Seed select box with all relevant years
 	export const yearRange = [1900, 2023];
@@ -88,6 +90,21 @@
 		query.set('offset', newOffset.toString());
 		goto(`?${query.toString()}`);
 	};
+
+	export let handleGenreClick = (genre: string) => {
+		const found = selectedGenres.find((g) => g === genre);
+		if (found) {
+			const copy = [...selectedGenres];
+			copy.splice(copy.indexOf(genre), 1);
+			selectedGenres = copy;
+		} else {
+			selectedGenres = [...selectedGenres, genre];
+		}
+
+		const query = new URLSearchParams($page.url.searchParams.toString());
+		query.set('genres', JSON.stringify(selectedGenres));
+		goto(`?${query.toString()}`);
+	};
 </script>
 
 <header>
@@ -120,6 +137,19 @@
 			<option value="asc">Ascending</option>
 			<option value="desc">Descending</option>
 		</select>
+	</div>
+
+	<div class="genres-input">
+		{#each data.genres as genre}
+			<input
+				type="checkbox"
+				value={genre.name}
+				checked={selectedGenres.indexOf(genre.name) !== -1}
+				id={genre.id}
+				on:change={(e) => handleGenreClick(e.currentTarget.value)}
+			/>
+			<label for={genre.id}>{genre.name}</label>
+		{/each}
 	</div>
 
 	{#if $navigating}
@@ -192,12 +222,12 @@
 		text-align: center;
 	}
 	.movieWrapper {
-		display: flex;
 		flex-wrap: wrap;
-		align-items: center;
-		justify-content: center;
-		gap: 20px;
 		margin-top: 40px;
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		grid-gap: 10px;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 	}
 
 	.summary-modal {
@@ -207,12 +237,13 @@
 		background-color: white;
 		box-shadow: 2px 2px 10px #0000001f;
 		border-radius: 10px;
+		pointer-events: none;
 	}
 
 	.movie {
-		width: 200px;
+		width: 180px;
 		height: 300px;
-		box-shadow: 2px 2px 10px #0000001f;
+		box-shadow: 0px 11px 15px #0000005e;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -220,6 +251,12 @@
 		position: relative;
 		background-size: cover;
 		background-repeat: no-repeat;
+		background-position-x: 50%;
+		transition: transform 100ms ease-in-out;
+	}
+
+	.movie:hover {
+		transform: scale(1.05, 1.05);
 	}
 
 	.info-bg {
